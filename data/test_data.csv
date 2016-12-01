@@ -1,0 +1,11 @@
+source_organisation,destination_organisation,amountUSD,flow
+A1,B1,4500,incoming
+A1,C2,3400,incoming
+A2,B2,2300,internal
+A2,B3,4300,incoming
+B1,C1,1200,internal
+B2,C1,200,internal
+B2,D2,500,outgoing
+B3,C3,4000,internal
+C1,D1,300,outgoing
+C2,D1,100,outgoing
