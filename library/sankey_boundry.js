@@ -5,6 +5,8 @@ d3.sankey = function() {
       size = [1, 1],
       nodes = [],
       links = [];
+      var minOutgoing = maxIncoming = 0;
+
 
   sankey.nodeWidth = function(_) {
     if (!arguments.length) return nodeWidth;
@@ -83,6 +85,7 @@ d3.sankey = function() {
       node.sourceLinks = [];
       node.targetLinks = [];
     });
+    console.log(links);
     links.forEach(function(link) {
       // console.log("Link Object : ");
       // console.log(link);
@@ -90,13 +93,8 @@ d3.sankey = function() {
           target = link.target;
       if (typeof source === "number") source = link.source = nodes[link.source];
       if (typeof target === "number") target = link.target = nodes[link.target];
-      try{
-        source.sourceLinks.push(link);
-        target.targetLinks.push(link);
-      }catch(err){
-        console.log(source,target);
-        debugger;
-      }
+      source.sourceLinks.push(link);
+      target.targetLinks.push(link);
     });
     // console.log(links);
     // debugger;
@@ -141,27 +139,53 @@ d3.sankey = function() {
 
 
     //
-    moveSinksRight(x);
-    // findInternalLink();
-     // console.log(nodes);
-    // debugger;
-    scaleNodeBreadths((width - nodeWidth) / (x - 1));
+    // moveSinksRight(x);
+    var x = findInternalLink();
+    scaleNodeBreadths((width - nodeWidth) / (x));
+    findXValues();
 
   }
 
   // Custom function
   function findInternalLink(){
-    var maxInternal = maxIncoming =  0;
+    var maxInternal = maxIncoming = maxOutgoing = 0;
     var minOutgoing = 1000;
+    nodes.forEach(function(node){
+      node.targetLinks.forEach(function(link){
+        node.flow = link.flow;
+        if("incoming" == link.flow){
+          node.flow = link.flow;
+          maxIncoming = Math.max(node.x,maxIncoming);
+        }
+        
+      });
+    });
+
+    nodes.forEach(function(node){
+      node.targetLinks.forEach(function(link){
+        if("internal" == link.flow){
+          node.x = maxIncoming + 1;
+        }
+      });
+    });
+
+    nodes.forEach(function(node){
+      node.targetLinks.forEach(function(link){
+        if("internal" == link.flow){
+          if("internal" == link.source.flow){
+            if(link.source.x >= node.x){
+              node.x = link.source.x + 1;
+            }
+          }
+        }
+      });
+    });
+
     nodes.forEach(function(node){
       node.targetLinks.forEach(function(link){
         if("internal" == link.flow){
           node.flow = link.flow;
           maxInternal = Math.max(node.x,maxInternal);
-        }
-        if("incoming" == link.flow){
-          node.flow = link.flow;
-          maxIncoming = Math.max(node.x,maxIncoming);
         }
         if("outgoing" == link.flow){
           node.flow = link.flow;
@@ -170,13 +194,40 @@ d3.sankey = function() {
       });
     });
 
+
     nodes.forEach(function(node){
       node.targetLinks.forEach(function(link){
-        if("internal" == link.flow){
-          node.x = maxInternal;
+        if("outgoing" == link.flow){
+          node.x = maxInternal + 1;
         }
       });
     });
+
+    nodes.forEach(function(node){
+      node.targetLinks.forEach(function(link){
+        if("outgoing" == link.flow){
+          if("outgoing" == link.source.flow){
+            if(link.source.x >= node.x){
+              node.x = link.source.x + 1;
+            }
+          }
+        }
+      });
+    });
+
+    nodes.forEach(function(node){
+      node.targetLinks.forEach(function(link){
+        if("outgoing" == link.flow){
+          node.flow = link.flow;
+          maxOutgoing = Math.max(node.x,maxOutgoing);
+        }
+      });
+    });
+    return maxOutgoing;
+  }
+
+  function findXValues(){
+    
   }
 
   function moveSourcesRight() {
