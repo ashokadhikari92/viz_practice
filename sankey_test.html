@@ -64,8 +64,8 @@ $.ajax({
 });*/
 
 var margin = {top: 10, right: 10, bottom: 10, left: 10},
-    width = Math.abs(5000 - margin.left - margin.right),
-    height = Math.abs(6000 - margin.top - margin.bottom);
+    width = Math.abs(1000 - margin.left - margin.right),
+    height = Math.abs(8000 - margin.top - margin.bottom);
 
 var formatNumber = d3.format(",.0f"),    // zero decimal places
     format = function(d) { return formatNumber(d) + " " + units; },
@@ -89,7 +89,7 @@ var path = sankey.link();
 var i = 1;
 var j = 2;
 // load the data (using the timelyportfolio csv method)
-d3.csv("data/south_sudan_fts_2.csv", function(error, data) {
+d3.csv("data/sudan_aggregated_2.csv", function(error, data) {
   //set up graph in same style as original example but empty
   graph = {"nodes" : [], "links" : []};
 
@@ -102,7 +102,7 @@ d3.csv("data/south_sudan_fts_2.csv", function(error, data) {
         graph.nodes.push({ "name": d["destination_organisation"] });
         graph.links.push({ "source": d["source_organisation"],
                            "target": d["destination_organisation"],
-                         "value": + d["Sum - amountUSD"]});
+                         "value": + d["amountUSD"]});
       }
      });
 
