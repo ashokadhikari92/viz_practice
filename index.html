@@ -2,8 +2,10 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>SANKEY Experiment</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/united/bootstrap.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css">
+<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/united/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css"> -->
+<link rel="stylesheet" href="vendor/bootstrap-dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="vendor/select2-dist/css/select2.min.css">
 
 <style>
 
@@ -66,10 +68,14 @@
 
 <p id="chart">
 
-    <script src="https://code.jquery.com/jquery-3.1.1.js"></script>
+    <script src="vendor/jquery-3.1.1.js"></script>
+    <script src="vendor/bootstrap-dist/js/bootstrap.min.js"></script>
+    <script src="vendor/select2-dist/js/select2.min.js"></script>
+    <script src="vendor/d3-dist/d3.js"></script>
+   <!--  <script src="https://code.jquery.com/jquery-3.1.1.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
-    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script> -->
     <script src="library/sankey_filter.js"></script>
     <script src="library/jquery-csv.js"></script>
     <script>
@@ -253,6 +259,10 @@
 
 
             var graph = {"nodes": [], "links": []};
+
+
+            console.log(data.length);
+            debugger;
             data.forEach(function (d) {
                 // console.log("i");
                 // console.log(d["source_organisation"]);
@@ -292,6 +302,7 @@
                     .nodes(graph.nodes)
                     .links(graph.links)
                     .layout(32);
+
             // add in the links
             var link = svg.append("g").selectAll(".link")
                     .data(graph.links)
