@@ -1,0 +1,89 @@
+<html>
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>SANKEY Experiment</title>
+<link rel="stylesheet" href="vendor/bootstrap-dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="vendor/select2-dist/css/select2.min.css">
+
+<style>
+
+    #chart {
+        margin-top: 20px;
+    }
+
+    .node rect {
+        cursor: move;
+        fill-opacity: .9;
+        shape-rendering: crispEdges;
+    }
+
+    .node text {
+        pointer-events: none;
+        text-shadow: 0 1px 0 #fff;
+        font-size: 10px;
+    }
+
+    .link {
+        fill: none;
+        /*stroke: red;*/
+        stroke-opacity: .2;
+    }
+
+    .incoming {
+        stroke: black;
+        color: red;
+    }
+
+    .internal {
+        stroke: blue;
+    }
+
+    .outgoing {
+        stroke: green;
+    }
+
+    .link:hover {
+        stroke-opacity: .5;
+    }
+
+    .boundry {
+        background: red;
+        opacity: 0.4;
+    }
+</style>
+
+<body>
+
+<div class="container">
+  <div class="filter-category col-md-12">
+      <select id="country" class="col-md-1 select2"></select>
+
+      <select id="year" class="col-md-1 select2"></select>
+
+      <select id="organization" class="col-md-3 select2"></select>
+
+      <button id="filter-sankey"> Filter</button>
+  </div>
+
+  <div class="col-md-6">
+     <label class="col-md-8" >Source Node</label>
+      <input type="radio" name="source_node" value="source_organisation" checked="checked"> Organization
+      <input type="radio" name="source_node" value="source_globalCluster"> Cluster<br>
+    <label class="col-md-8">Destination Node</label>
+      <input type="radio" name="destination_node" value="destination_organisation" checked="checked"> Organization
+      <input type="radio" name="destination_node" value="destination_globalCluster"> Cluster
+  </div>
+
+</div>
+<p id="chart">
+
+    <script src="vendor/jquery-3.1.1.js"></script>
+    <script src="vendor/bootstrap-dist/js/bootstrap.min.js"></script>
+    <script src="vendor/select2-dist/js/select2.min.js"></script>
+    <script src="vendor/d3-dist/d3.js"></script>
+    <script src="library/sankey_filter.js"></script>
+    <script src="library/jquery-csv.js"></script>
+    <script src="js/sankey_filter.js"></script>
+
+</body>
+</html>

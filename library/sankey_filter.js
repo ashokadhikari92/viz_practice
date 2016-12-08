@@ -90,8 +90,13 @@ d3.sankey = function() {
           target = link.target;
       if (typeof source === "number") source = link.source = nodes[link.source];
       if (typeof target === "number") target = link.target = nodes[link.target];
-      source.sourceLinks.push(link);
-      target.targetLinks.push(link);
+      try{
+        source.sourceLinks.push(link);
+        target.targetLinks.push(link);
+      }catch(err){
+        console.log(source,target);
+        debugger;
+      }
     });
     // console.log(links);
     // debugger;
