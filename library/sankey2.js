@@ -150,6 +150,7 @@ d3.sankey = function() {
   function findInternalLink(){
     var maxInternal = maxIncoming = maxOutgoing = 0;
     var minOutgoing = 1000;
+
     nodes.forEach(function(node){
       node.targetLinks.forEach(function(link){
         node.flow = link.flow;
@@ -223,6 +224,7 @@ d3.sankey = function() {
         }
       });
     });
+
     return maxOutgoing;
   }
 

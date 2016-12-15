@@ -1,6 +1,6 @@
 var records = {"flows": [], "orgs": [], "years": [], "countries": []};
 var api = {
-    "base": "https://service.stage.hpc.568elmp03.blackmesh.com/v0/public/fts/flow",
+    "base": "https://service.stage.hpc.568elmp03.blackmesh.com/v0/public/fts/flow?limit=10000",
     "organization": "https://service.stage.hpc.568elmp03.blackmesh.com/v0/public/organization",
     "organization_base": "http://service.hpc.vm/v0/public/yi/organization",
     "country": "https://service.stage.hpc.568elmp03.blackmesh.com/v0/public/location",
@@ -9,8 +9,8 @@ var api = {
 
 var units = "USD";
 
-var margin = {top: 10, right: 10, bottom: 10, left: 10},
-    width = Math.abs(800 - margin.left - margin.right),
+var margin = {top: 50, right: 50, bottom: 50, left: 10},
+    width = Math.abs(1000 - margin.left - margin.right),
     height = Math.abs(1600 - margin.top - margin.bottom);
 
 $(document).ready(function () {
@@ -128,10 +128,13 @@ function filterSankey() {
     var selectedCountry = $("#country").val();
     var selectedYear = $("#year").val();
     var selectedOrg = $("#organization").val();
+    var loader = $(".loader");
+    // var selectedOrg = 16068;//13098
+    loader.removeClass("hidden");
+    $("#chart").empty();
 
     if(selectedCountry){
-
-        url = api.base+"?countryISO3="+selectedCountry+"&year="+selectedYear+"organizationID="+selectedOrg;
+        url = api.base+"&countryISO3="+selectedCountry+"&year="+selectedYear+"&organizationID="+selectedOrg;
         $.ajax({
             type: "GET",
             url: url,
@@ -141,10 +144,12 @@ function filterSankey() {
                 records.flows = findSourceAndTarget(data.data.flows);
                 findSourceAndDestinationNode(records.flows);
                 generateSankey();
+                loader.addClass("hidden");
             }
         });
     }else {
         alert("Invalid input selection");
+        loader.addClass("hidden");
     }
 
 }
@@ -155,21 +160,21 @@ function filterSankey() {
 function findSourceAndTarget(flows){
     flows.forEach(function(flow){
         flow.targetOrganization = flow.destinationObjects.find(function(obj){
-            return "Organization" == obj.type;
-        }) || {"id":"t0","name":"Not available (target)"};
+                return "Organization" == obj.type;
+            }) || {"id":"t0","name":"Not available (target)"};
         flow.sourceOrganization = flow.sourceObjects.find(function(obj){
-            return "Organization" == obj.type;
-        }) || {"id":"s0","name":"Not available (source)"};
+                return "Organization" == obj.type;
+            }) || {"id":"s0","name":"Not available (source)"};
 
         flow.target = flow.targetOrganization?flow.targetOrganization.name:"Not available (target)";
         flow.source = flow.sourceOrganization?flow.sourceOrganization.name:"Not available (source)";
 
         flow.target_cluster = flow.destinationObjects.find(function(obj){
-            return "GlobalCluster" == obj.type;
-        }) || {"id":"tc0","name":"Not Specified (Target)"};
+                return "GlobalCluster" == obj.type;
+            }) || {"id":"tc0","name":"Not Specified (Target)"};
         flow.source_cluster = flow.destinationObjects.find(function(obj){
-            return "GlobalCluster" == obj.type;
-        }) || {"id":"sc0","name":"Not Specified (Source)"};
+                return "GlobalCluster" == obj.type;
+            }) || {"id":"sc0","name":"Not Specified (Source)"};
 
         flow.target_globalCluster = flow.target_cluster?flow.target_cluster.name:"Not Specified (Target)";
         flow.source_globalCluster =  flow.source_cluster? flow.source_cluster.name:"Not Specified (Source)";
@@ -182,15 +187,20 @@ function findSourceAndTarget(flows){
  * Find the source and destination nodes for the sankey
  */
 function findSourceAndDestinationNode(flows) {
+    console.log("Flow counts : "+ flows.length);
     var graph = {"nodes": [], "links": []};
     var sourceNode = $('input[name=source_node]:checked').val();
     var destinationNode = $('input[name=destination_node]:checked').val();
     var selectedOrg = $("#organization").val();
+    // var selectedOrg = 16068;
 
+    var i = 0; var j = 0;
     if (sourceNode && destinationNode) {
         flows.forEach(function (flow) {
             if (selectedOrg == flow.sourceOrganization.id) {
+                i++;
                 if (!(flow.source == flow[destinationNode])) {
+                    j++;
                     graph.nodes.push({"name": flow.source});
                     graph.nodes.push({"name": flow[destinationNode]});
                     graph.links.push({
@@ -203,7 +213,9 @@ function findSourceAndDestinationNode(flows) {
             }
 
             if (selectedOrg == flow.targetOrganization.id) {
+                i++;
                 if (!(flow.target == flow[sourceNode])) {
+                    j++;
                     graph.nodes.push({"name": flow[sourceNode]});
                     graph.nodes.push({"name": flow.target});
                     graph.links.push({
@@ -215,6 +227,9 @@ function findSourceAndDestinationNode(flows) {
                 }
             }
         });
+
+        console.log("value of i : "+i);
+        console.log("value of j : "+j);
     }
 
     records.graph = graph;
@@ -258,7 +273,7 @@ function mergeAlikeLinks() {
  * Check if given two links are alike ( source and target are same)
  */
 function isLinkAlike(link1, link2) {
-    return ((link1.source == link2.source) && (link1.target == link2.target));
+    return ((link1.source == link2.source) && (link1.target == link2.target) && (link1.flow == link2.flow));
 }
 
 
@@ -318,13 +333,37 @@ function generateSankey() {
         .links(graph.links)
         .layout(0);
 
+    if(graph.links.length == 0){
+        alert("No matching flows.");
+        return false;
+    }
+
+
+    var bCord= calculateBoundaryCoordinates(graph.nodes);
+
+    console.log(bCord);
+    debugger;
+
+    if (bCord.maxInternal > 0) {
+        var boundary = svg.selectAll("rect")
+            .data([2])
+            .enter()
+            .append("rect")
+            .attr("class", "boundary")
+            .attr("x", bCord.x)
+            .attr("y", bCord.y)
+            .attr("height", bCord.height)
+            .attr("width", Math.abs(bCord.width));
+
+        boundary.append("title")
+            .text("Internal Boundary");
+    }
+
     // add in the links
     var link = svg.append("g").selectAll(".link")
         .data(graph.links)
         .enter().append("path")
         .attr("class", function(d){
-            console.log(d.flow);
-            debugger;
             return "link " + d.flow;
         })
         .attr("d", path)
@@ -366,7 +405,7 @@ function generateSankey() {
         .attr("height", function (d) {
             return Math.abs(d.dy);
         })
-        .attr("width", sankey.nodeWidth())
+        .attr("width", Math.abs(sankey.nodeWidth()))
         .style("fill", function (d) {
             return d.color = color(d.name.replace(/ .*/, ""));
         })
@@ -395,8 +434,6 @@ function generateSankey() {
         })
         .attr("x", 6 + sankey.nodeWidth())
         .attr("text-anchor", "start");
-
-    // the function for moving the nodes
     function dragmove(d) {
         d3.select(this).attr("transform",
             "translate(" + d.x + "," + (
@@ -405,4 +442,20 @@ function generateSankey() {
         sankey.relayout();
         link.attr("d", path);
     }
+}
+
+function calculateBoundaryCoordinates(nodes){
+    var maxInternal = 0; var maxIncoming = 0;
+
+    nodes.forEach(function(node){
+        if("internal" == node.flow){
+            maxInternal = Math.max(node.x,maxInternal);
+        }
+        if("incoming" == node.flow){
+            maxIncoming = Math.max(node.x,maxIncoming);
+        }
+    });
+    console.log(maxInternal,maxIncoming);
+
+    return {'maxInternal':maxInternal,'x':maxIncoming + 50,'width':(maxInternal - maxIncoming) ,'y':-50,'height':height + 100};
 }
