@@ -380,7 +380,7 @@ function generateSankey() {
         .attr("d", path)
         .style("stroke-width", 2)
         .sort(function (a, b) {
-            return b.dy - a.dy;
+            return b.dm - a.dm;
         });
 
     // add the link titles
@@ -416,7 +416,7 @@ function generateSankey() {
             return d.dy;
         })
         .attr("r", function (d) {
-            return Math.sqrt(d.dy);
+            return Math.sqrt(d.dm);
         })
         .style("fill", function (d) {
             return d.color = color(d.name.replace(/ .*/, ""));

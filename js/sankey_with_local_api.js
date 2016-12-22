@@ -1,10 +1,8 @@
-var records = {"flows": [], "orgs": [], "years": [], "countries": []};
+var records = {"graph":{},"flows": [], "orgs": [], "years": [], "countries": []};
 var api = {
-    "base": "https://service.stage.hpc.568elmp03.blackmesh.com/v0/public/fts/flow?limit=10000",
-    "organization": "https://service.stage.hpc.568elmp03.blackmesh.com/v0/public/organization",
-    "organization_base": "http://service.fts.yipl.com.np/v0/public/yi/organization",
-    "country": "https://service.stage.hpc.568elmp03.blackmesh.com/v0/public/location",
-    "global_cluster": "https://service.stage.hpc.568elmp03.blackmesh.com/v0/public/global-cluster"
+    "base": "http://localhost:3000/api/flow?limit=10000",
+    "organization": "http://localhost:3000/api/organization",
+    "country": "http://localhost:3000/api/country"
 };
 
 var units = "USD";
@@ -22,7 +20,7 @@ $(document).ready(function () {
         filterSankey();
     });
 
-    // $("#country").on("change",getOrganizationList);
+    $("#country,#year").on("change",getOrganizationList);
 
 });
 
@@ -32,7 +30,7 @@ $(document).ready(function () {
 function loadSelectionFields() {
     getCountryList();
     getYearList();
-    getOrganizationList();
+    // getOrganizationList();
 }
 
 
@@ -40,19 +38,27 @@ function loadSelectionFields() {
  * Get organization list
  */
 function getOrganizationList() {
-    // var selectedCountry = $("#country").val();
+    var selectedCountry = $("#country").val();
+    var selectedYear = $("#year").val();
+    console.log(selectedCountry,selectedYear);
+    console.log((selectedCountry !== 'null') && (selectedYear !== 'null'));
 
-    $.ajax({
-        type: "GET",
-        // url: api.organization_base+"?iso3="+selectedCountry,
-        url:api.organization,
-        dataType: "text",
-        success: function (data) {
-            data = JSON.parse(data);
-            records.orgs = data.data;
-            loadOrganizationSelectionField();
-        }
-    });
+
+    if((selectedCountry !== 'null') && (selectedYear !== 'null')){ 
+        var loader = $(".loader");
+        loader.removeClass("hidden");    
+        $.ajax({
+            type: "GET",
+            url: api.organization +"?iso3="+selectedCountry+"&year="+selectedYear,
+            dataType: "text",
+            success: function (data) {
+                records.orgs = JSON.parse(data).data;
+                loadOrganizationSelectionField();
+                loader.addClass("hidden");
+            }
+        });
+    }
+
 }
 
 /*
@@ -62,9 +68,8 @@ function getCountryList() {
     $.ajax({
         type: "GET",
         url: api.country,
-        dataType: "text",
+        dataType: "JSON",
         success: function (data) {
-            data = JSON.parse(data);
             records.countries = data.data;
             loadCountrySelectionField();
         }
@@ -129,22 +134,24 @@ function filterSankey() {
     var selectedCountry = $("#country").val();
     var selectedYear = $("#year").val();
     var selectedOrg = $("#organization").val();
+    var sourceNode = $('input[name=source_node]:checked').val();
+    var destinationNode = $('input[name=destination_node]:checked').val();
     var loader = $(".loader");
-    // var selectedOrg = 16068;//13098
     loader.removeClass("hidden");
+
     $("#chart").empty();
 
     if(selectedCountry){
-        url = api.base+"&countryISO3="+selectedCountry+"&year="+selectedYear+"&organizationID="+selectedOrg;
+        url = api.base+"&countryISO3="+selectedCountry+"&year="+selectedYear+"&organizationID="+selectedOrg+"&sourceNode="+sourceNode+"&destinationNode="+destinationNode;
         $.ajax({
             type: "GET",
             url: url,
             dataType: "text",
             success: function (data) {
                 data = JSON.parse(data);
-                records.flows = findSourceAndTarget(data.data.flows);
-                findSourceAndDestinationNode(records.flows);
+                records.graph = data;
                 generateSankey();
+                
                 loader.addClass("hidden");
             }
         });
@@ -153,128 +160,6 @@ function filterSankey() {
         loader.addClass("hidden");
     }
 
-}
-
-/*
- * Find source and target object for the given flow
- */
-function findSourceAndTarget(flows){
-    flows.forEach(function(flow){
-        flow.targetOrganization = flow.destinationObjects.find(function(obj){
-                return "Organization" == obj.type;
-            }) || {"id":"t0","name":"Not available (target)"};
-        flow.sourceOrganization = flow.sourceObjects.find(function(obj){
-                return "Organization" == obj.type;
-            }) || {"id":"s0","name":"Not available (source)"};
-
-        flow.target = flow.targetOrganization?flow.targetOrganization.name:"Not available (target)";
-        flow.source = flow.sourceOrganization?flow.sourceOrganization.name:"Not available (source)";
-
-        flow.target_cluster = flow.destinationObjects.find(function(obj){
-                return "GlobalCluster" == obj.type;
-            }) || {"id":"tc0","name":"Not Specified (Target)"};
-        flow.source_cluster = flow.destinationObjects.find(function(obj){
-                return "GlobalCluster" == obj.type;
-            }) || {"id":"sc0","name":"Not Specified (Source)"};
-
-        flow.target_globalCluster = flow.target_cluster?flow.target_cluster.name:"Not Specified (Target)";
-        flow.source_globalCluster =  flow.source_cluster? flow.source_cluster.name:"Not Specified (Source)";
-
-    });
-
-    return flows;
-}
-/*
- * Find the source and destination nodes for the sankey
- */
-function findSourceAndDestinationNode(flows) {
-    console.log("Flow counts : "+ flows.length);
-    var graph = {"nodes": [], "links": []};
-    var sourceNode = $('input[name=source_node]:checked').val();
-    var destinationNode = $('input[name=destination_node]:checked').val();
-    var selectedOrg = $("#organization").val();
-    // var selectedOrg = 16068;
-
-    var i = 0; var j = 0;
-    if (sourceNode && destinationNode) {
-        flows.forEach(function (flow) {
-            if (selectedOrg == flow.sourceOrganization.id) {
-                i++;
-                if (!(flow.source == flow[destinationNode])) {
-                    j++;
-                    graph.nodes.push({"name": flow.source});
-                    graph.nodes.push({"name": flow[destinationNode]});
-                    graph.links.push({
-                        "source": flow.source,
-                        "target": flow[destinationNode],
-                        "flow": flow["boundary"],
-                        "value": +flow["amountUSD"]
-                    });
-                }
-            }
-
-            if (selectedOrg == flow.targetOrganization.id) {
-                i++;
-                if (!(flow.target == flow[sourceNode])) {
-                    j++;
-                    graph.nodes.push({"name": flow[sourceNode]});
-                    graph.nodes.push({"name": flow.target});
-                    graph.links.push({
-                        "source": flow[sourceNode],
-                        "target": flow.target,
-                        "flow": flow["boundary"],
-                        "value": +flow["amountUSD"]
-                    });
-                }
-            }
-        });
-
-        console.log("value of i : "+i);
-        console.log("value of j : "+j);
-    }
-
-    records.graph = graph;
-
-    mergeAlikeLinks();
-
-}
-
-/*
- * Merge links with same source and target
- */
-function mergeAlikeLinks() {
-    var links = JSON.parse(JSON.stringify(records.graph.links));
-    var newLinks = [];
-
-    links.forEach(function (linkFirst, firstIndex) {
-        var tempLinks = JSON.parse(JSON.stringify(links));
-
-        for (var i = 0; i < tempLinks.length; i++) {
-            var linkSecond = tempLinks[i];
-            var secondIndex = i;
-            if (secondIndex > firstIndex) {
-                if (isLinkAlike(linkFirst, linkSecond)) {
-
-                    linkFirst.value = linkFirst.value + linkSecond.value;
-                    tempLinks.splice(secondIndex, 1);
-                    links.splice(secondIndex, 1);
-                    --i;
-                }
-            }
-        }
-
-        newLinks.push(linkFirst);
-
-    });
-
-    records.graph.links = newLinks;
-}
-
-/*
- * Check if given two links are alike ( source and target are same)
- */
-function isLinkAlike(link1, link2) {
-    return ((link1.source == link2.source) && (link1.target == link2.target) && (link1.flow == link2.flow));
 }
 
 
