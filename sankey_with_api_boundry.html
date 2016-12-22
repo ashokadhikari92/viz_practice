@@ -38,16 +38,55 @@
     }
 
     .outgoing {
-        stroke: green;
+        stroke: red;
+        opacity: 0.8;
     }
 
     .link:hover {
         stroke-opacity: .5;
     }
 
-    .boundry {
-        background: red;
-        opacity: 0.4;
+    .boundary {
+        fill: green;
+        fill-opacity:0.1;
+        stroke: black;
+        stroke-opacity:0.8;
+        stroke-dasharray:5,5;
+        /*border: 1px dotted;*/
+    }
+
+    .boundary:hover{
+        fill-opacity:0.5;
+    }
+
+    title {
+        color:black;
+    }
+
+    text {
+        stroke: none;
+    }
+
+    .loader {
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #3498db;
+        width: 120px;
+        height: 120px;
+        -webkit-animation: spin 2s linear infinite;
+        animation: spin 2s linear infinite;
+        margin-left: 45%;
+        margin-top: 30px;
+    }
+
+    @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 </style>
 
@@ -74,13 +113,14 @@
     </div>
 
 </div>
-<p id="chart">
+<div class="loader hidden"></div>
+<p id="chart"></p>
 
     <script src="vendor/jquery-3.1.1.js"></script>
     <script src="vendor/bootstrap-dist/js/bootstrap.min.js"></script>
     <script src="vendor/select2-dist/js/select2.min.js"></script>
     <script src="vendor/d3-dist/d3.js"></script>
-    <script src="library/sankey_filter_3.js"></script>
-    <script src="js/sankey_with_api.js"></script>
+    <script src="library/sankey_api_boundry.js"></script>
+    <script src="js/sankey_with_api_boundry.js"></script>
 </body>
 </html>
