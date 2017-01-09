@@ -4,6 +4,9 @@
 <title>SANKEY Experiment</title>
 <link rel="stylesheet" href="vendor/bootstrap-dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="vendor/select2-dist/css/select2.min.css">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Roboto+Slab:400,700" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,700" rel="stylesheet">
 
 <style>
 
@@ -92,27 +95,121 @@
 
 <body>
 
-<div class="container">
-    <div class="filter-category col-md-12">
-        <select id="country" class="col-md-3 select2"></select>
+<section class="filter-data">
 
-        <select id="year" class="col-md-3 select2"></select>
+    <div class="container">
 
-        <select id="organization" class="col-md-4 select2"></select>
+        <h2 class="main-title">FTS FLow Visualization </h2>
 
-        <button id="filter-sankey"> Filter</button>
+
+        <div class="row">
+            <div class="col-sm-5 filter-selects" style="padding-left:0;">
+                <div class="col-sm-4">
+                    <h4 class="title-filter">Country</h4>
+
+                    <div class="select_container">
+                        <div class="arrow"></div>
+                        <select id="country" class="select2">
+                        </select>
+                    </div><!-- .select_container -->
+
+
+                </div>
+                <div class="col-sm-4">
+                    <h4 class="title-filter">Year</h4>
+                    <div class="select_container">
+                        <div class="arrow"></div>
+                        <select id="year" class="select2">
+                        </select>
+                    </div><!-- .select_container -->
+                </div>
+                <div class="col-sm-4">
+                    <h4 class="title-filter">Organization</h4>
+                    <div class="select_container">
+                        <div class="arrow"></div>
+                        <select id="organization" class="select2">
+                        </select>
+                    </div><!-- .select_container -->
+                </div>
+            </div>
+
+            <div class="col-sm-7 filter-radios">
+                <div class="col-sm-5">
+                    <h4 class="title-filter">Source Node</h4>
+
+                    <input type="radio" name="source_node" value="source" checked="checked"> Organization
+                    <input type="radio" name="source_node" value="source_globalCluster" style="margin-left: 10px;"> Cluster<br>
+
+                    <!--<span>Organization</span>-->
+
+                    <!--<label class="switch">-->
+                    <!--<input type="checkbox" class="switch-input" checked name="source_node">-->
+                    <!--<span class="switch-label" data-on="On" data-off="Off"></span>-->
+                    <!--<span class="switch-handle"></span>-->
+                    <!--</label>-->
+
+                    <!--<span>Cluster</span>-->
+
+
+
+                </div>
+                <div class="col-sm-5">
+                    <h4 class="title-filter">Destination Node</h4>
+
+                    <input type="radio" name="destination_node" value="target" checked="checked"> Organization
+                    <input type="radio" name="destination_node" value="target_globalCluster" style="margin-left: 10px;"> Cluster
+
+                    <!--<span>Organization</span>-->
+
+                    <!--<label class="switch">-->
+                    <!--<input type="checkbox" class="switch-input" checked>-->
+                    <!--<span class="switch-label" data-on="On" data-off="Off"></span>-->
+                    <!--<span class="switch-handle"></span>-->
+                    <!--</label>-->
+
+                    <!--<span>Cluster</span>-->
+
+                </div>
+                <div class="col-sm-2">
+                    <button id="filter-sankey" class="btn btn-filter">Filter</button>
+                </div>
+            </div>
+
+        </div>
     </div>
+</section>
 
-    <div class="col-md-6">
-        <label class="col-md-8">Source Node</label>
-        <input type="radio" name="source_node" value="source" checked="checked"> Organization
-        <input type="radio" name="source_node" value="source_globalCluster"> Cluster<br>
-        <label class="col-md-8">Destination Node</label>
-        <input type="radio" name="destination_node" value="target" checked="checked"> Organization
-        <input type="radio" name="destination_node" value="target_globalCluster"> Cluster
-    </div>
+<ul class="chart-type">
+    <li>
+        <a href="sankey_with_api_boundry.html">Sankey</a>
+    </li>
+    <li style="padding-bottom: 3px;
+    border-bottom: 2px solid #3388c8;">
+        <a href="cluster_demo.html">Dendogram</a>
+    </li>
+</ul>
 
-</div>
+<!--<div class="container">-->
+    <!--<div class="filter-category col-md-12">-->
+        <!--<select id="country" class="col-md-3 select2"></select>-->
+
+        <!--<select id="year" class="col-md-3 select2"></select>-->
+
+        <!--<select id="organization" class="col-md-4 select2"></select>-->
+
+        <!--<button id="filter-sankey"> Filter</button>-->
+    <!--</div>-->
+
+    <!--<div class="col-md-6">-->
+        <!--<label class="col-md-8">Source Node</label>-->
+        <!--<input type="radio" name="source_node" value="source" checked="checked"> Organization-->
+        <!--<input type="radio" name="source_node" value="source_globalCluster"> Cluster<br>-->
+        <!--<label class="col-md-8">Destination Node</label>-->
+        <!--<input type="radio" name="destination_node" value="target" checked="checked"> Organization-->
+        <!--<input type="radio" name="destination_node" value="target_globalCluster"> Cluster-->
+    <!--</div>-->
+
+<!--</div>-->
 <div class="loader hidden"></div>
 <p id="chart"></p>
 
