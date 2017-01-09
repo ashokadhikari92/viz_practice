@@ -22,7 +22,7 @@ $(document).ready(function () {
         filterSankey();
     });
 
-    $("#country").on("change",getOrganizationList);
+    $("#country").on("change", getOrganizationList);
 
 });
 
@@ -44,7 +44,7 @@ function getOrganizationList() {
 
     $.ajax({
         type: "GET",
-        url: api.organization_base+"?iso3="+selectedCountry,
+        url: api.organization_base + "?iso3=" + selectedCountry,
         dataType: "text",
         success: function (data) {
             data = JSON.parse(data);
@@ -73,8 +73,8 @@ function getCountryList() {
 /*
  * Get year list
  */
-function getYearList(){
-    records.years = ["2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017"];
+function getYearList() {
+    records.years = ["2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"];
     loadYearSelectionField();
 }
 
@@ -133,8 +133,8 @@ function filterSankey() {
     loader.removeClass("hidden");
     $("#chart").empty();
 
-    if(selectedCountry){
-        url = api.base+"&countryISO3="+selectedCountry+"&year="+selectedYear+"&organizationID="+selectedOrg;
+    if (selectedCountry) {
+        url = api.base + "&countryISO3=" + selectedCountry + "&year=" + selectedYear + "&organizationID=" + selectedOrg;
         $.ajax({
             type: "GET",
             url: url,
@@ -147,7 +147,7 @@ function filterSankey() {
                 loader.addClass("hidden");
             }
         });
-    }else {
+    } else {
         alert("Invalid input selection");
         loader.addClass("hidden");
     }
@@ -157,27 +157,27 @@ function filterSankey() {
 /*
  * Find source and target object for the given flow
  */
-function findSourceAndTarget(flows){
-    flows.forEach(function(flow){
-        flow.targetOrganization = flow.destinationObjects.find(function(obj){
+function findSourceAndTarget(flows) {
+    flows.forEach(function (flow) {
+        flow.targetOrganization = flow.destinationObjects.find(function (obj) {
                 return "Organization" == obj.type;
-            }) || {"id":"t0","name":"Not available (target)"};
-        flow.sourceOrganization = flow.sourceObjects.find(function(obj){
+            }) || {"id": "t0", "name": "Not available (target)"};
+        flow.sourceOrganization = flow.sourceObjects.find(function (obj) {
                 return "Organization" == obj.type;
-            }) || {"id":"s0","name":"Not available (source)"};
+            }) || {"id": "s0", "name": "Not available (source)"};
 
-        flow.target = flow.targetOrganization?flow.targetOrganization.name:"Not available (target)";
-        flow.source = flow.sourceOrganization?flow.sourceOrganization.name:"Not available (source)";
+        flow.target = flow.targetOrganization ? flow.targetOrganization.name : "Not available (target)";
+        flow.source = flow.sourceOrganization ? flow.sourceOrganization.name : "Not available (source)";
 
-        flow.target_cluster = flow.destinationObjects.find(function(obj){
+        flow.target_cluster = flow.destinationObjects.find(function (obj) {
                 return "GlobalCluster" == obj.type;
-            }) || {"id":"tc0","name":"Not Specified (Target)"};
-        flow.source_cluster = flow.destinationObjects.find(function(obj){
+            }) || {"id": "tc0", "name": "Not Specified (Target)"};
+        flow.source_cluster = flow.destinationObjects.find(function (obj) {
                 return "GlobalCluster" == obj.type;
-            }) || {"id":"sc0","name":"Not Specified (Source)"};
+            }) || {"id": "sc0", "name": "Not Specified (Source)"};
 
-        flow.target_globalCluster = flow.target_cluster?flow.target_cluster.name:"Not Specified (Target)";
-        flow.source_globalCluster =  flow.source_cluster? flow.source_cluster.name:"Not Specified (Source)";
+        flow.target_globalCluster = flow.target_cluster ? flow.target_cluster.name : "Not Specified (Target)";
+        flow.source_globalCluster = flow.source_cluster ? flow.source_cluster.name : "Not Specified (Source)";
 
     });
 
@@ -187,14 +187,15 @@ function findSourceAndTarget(flows){
  * Find the source and destination nodes for the sankey
  */
 function findSourceAndDestinationNode(flows) {
-    console.log("Flow counts : "+ flows.length);
+    console.log("Flow counts : " + flows.length);
     var graph = {"nodes": [], "links": []};
     var sourceNode = $('input[name=source_node]:checked').val();
     var destinationNode = $('input[name=destination_node]:checked').val();
     var selectedOrg = $("#organization").val();
     // var selectedOrg = 16068;
 
-    var i = 0; var j = 0;
+    var i = 0;
+    var j = 0;
     if (sourceNode && destinationNode) {
         flows.forEach(function (flow) {
             if (selectedOrg == flow.sourceOrganization.id) {
@@ -228,8 +229,8 @@ function findSourceAndDestinationNode(flows) {
             }
         });
 
-        console.log("value of i : "+i);
-        console.log("value of j : "+j);
+        console.log("value of i : " + i);
+        console.log("value of j : " + j);
     }
 
     records.graph = graph;
@@ -303,10 +304,23 @@ function generateSankey() {
         .nodePadding(10)
         .size([width, height]);
 
-    var path = sankey.link();
-    var i = 1;
-    var j = 2;
-
+    // var path = sankey.link();
+    var path = d3.svg.diagonal()
+        .source(function (d) {
+            return {
+                "x": d.source.y + d.source.dy,
+                "y": d.source.x + sankey.nodeWidth() / 2
+            };
+        })
+        .target(function (d) {
+            return {
+                "x": d.target.y + d.target.dy,
+                "y": d.target.x + sankey.nodeWidth() / 2
+            };
+        })
+        .projection(function (d) {
+            return [d.y, d.x];
+        });
 
     var graph = records.graph;
     // return only the distinct / unique nodes
@@ -333,14 +347,13 @@ function generateSankey() {
         .links(graph.links)
         .layout(0);
 
-    if(graph.links.length == 0){
+    if (graph.links.length == 0) {
         alert("No matching flows.");
         return false;
     }
 
 
-    var bCord= calculateBoundaryCoordinates(graph.nodes);
-
+    var bCord = calculateBoundaryCoordinates(graph.nodes);
 
     if (bCord.maxInternal > 0) {
         var boundary = svg.selectAll("rect")
@@ -361,15 +374,13 @@ function generateSankey() {
     var link = svg.append("g").selectAll(".link")
         .data(graph.links)
         .enter().append("path")
-        .attr("class", function(d){
+        .attr("class", function (d) {
             return "link " + d.flow;
         })
         .attr("d", path)
-        .style("stroke-width", function (d) {
-            return Math.max(1, d.dy);
-        })
+        .style("stroke-width", 2)
         .sort(function (a, b) {
-            return b.dy - a.dy;
+            return b.dm - a.dm;
         });
 
     // add the link titles
@@ -386,7 +397,7 @@ function generateSankey() {
         .attr("class", function (d) {
             return "node " + d.flow;
         })
-        .attr("transform", function (d) {
+        .attr("transform", function (d,i) {
             return "translate(" + d.x + "," + d.y + ")";
         })
         .call(d3.behavior.drag()
@@ -398,18 +409,21 @@ function generateSankey() {
             })
             .on("drag", dragmove));
 
-    // add the rectangles for the nodes
-    node.append("rect")
-        .attr("height", function (d) {
-            return Math.abs(d.dy);
+    // add the circles for the nodes
+    node.append("circle")
+        .attr("cx", sankey.nodeWidth() / 2)
+        .attr("cy", function (d) {
+            return d.dy;
         })
-        .attr("width", Math.abs(sankey.nodeWidth()))
+        .attr("r", function (d) {
+            return Math.sqrt(d.dm);
+        })
         .style("fill", function (d) {
             return d.color = color(d.name.replace(/ .*/, ""));
         })
-        //.style("stroke", function (d) {
-        //    return d3.rgb(d.color).darker(2);
-        //})
+        .style("stroke", function (d) {
+            return d3.rgb(d.color).darker(2);
+        })
         .append("title")
         .text(function (d) {
             return d.name + "\n" + format(d.value);
@@ -419,7 +433,7 @@ function generateSankey() {
     node.append("text")
         .attr("x", -6)
         .attr("y", function (d) {
-            return d.dy / 2;
+            return d.dy;
         })
         .attr("dy", ".15em")
         .attr("text-anchor", "end")
@@ -442,18 +456,25 @@ function generateSankey() {
     }
 }
 
-function calculateBoundaryCoordinates(nodes){
-    var maxInternal = 0; var maxIncoming = 0;
+function calculateBoundaryCoordinates(nodes) {
+    var maxInternal = 0;
+    var maxIncoming = 0;
 
-    nodes.forEach(function(node){
-        if("internal" == node.flow){
-            maxInternal = Math.max(node.x,maxInternal);
+    nodes.forEach(function (node) {
+        if ("internal" == node.flow) {
+            maxInternal = Math.max(node.x, maxInternal);
         }
-        if("incoming" == node.flow){
-            maxIncoming = Math.max(node.x,maxIncoming);
+        if ("incoming" == node.flow) {
+            maxIncoming = Math.max(node.x, maxIncoming);
         }
     });
-    console.log(maxInternal,maxIncoming);
+    console.log(maxInternal, maxIncoming);
 
-    return {'maxInternal':maxInternal,'x':maxIncoming + 50,'width':(maxInternal - maxIncoming) ,'y':-50,'height':height + 100};
+    return {
+        'maxInternal': maxInternal,
+        'x': maxIncoming + 50,
+        'width': (maxInternal - maxIncoming),
+        'y': -50,
+        'height': height + 100
+    };
 }
