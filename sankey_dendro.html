@@ -1,0 +1,238 @@
+<html>
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>SANKEY Experiment</title>
+<link rel="stylesheet" href="vendor/bootstrap-dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="vendor/select2-dist/css/select2.min.css">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Roboto+Slab:400,700" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,700" rel="stylesheet">
+
+
+<style>
+
+    #chart {
+        margin-top: 20px;
+    }
+
+    .node rect {
+        cursor: move;
+        fill-opacity: .9;
+        shape-rendering: crispEdges;
+    }
+
+    .node text {
+        pointer-events: none;
+        text-shadow: 0 1px 0 #fff;
+        font-size: 10px;
+    }
+
+    .link {
+        fill: none;
+        /*stroke-opacity: .2;*/
+    }
+
+    .incoming {
+        stroke: #c1edec;
+    }
+
+    .internal {
+        stroke: blue;
+    }
+
+    .outgoing {
+        stroke: #bae3ed;
+        /*opacity: 0.8;*/
+    }
+
+    .outgoing:hover {
+        stroke: #afd2da;
+    }
+
+    .link:hover {
+        stroke-opacity: .5;
+    }
+
+    .boundary {
+        fill: green;
+        fill-opacity: 0.1;
+        stroke: black;
+        stroke-opacity: 0.8;
+        stroke-dasharray: 5, 5;
+        /*border: 1px dotted;*/
+    }
+
+    .boundary:hover {
+        fill-opacity: 0.5;
+    }
+
+    title {
+        color: black;
+    }
+
+    text {
+        stroke: none;
+    }
+
+    .loader {
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #3498db;
+        width: 120px;
+        height: 120px;
+        -webkit-animation: spin 2s linear infinite;
+        animation: spin 2s linear infinite;
+        margin-left: 45%;
+        margin-top: 30px;
+    }
+
+    @-webkit-keyframes spin {
+        0% {
+            -webkit-transform: rotate(0deg);
+        }
+        100% {
+            -webkit-transform: rotate(360deg);
+        }
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background: none;
+        color: #337ab7;
+        border-bottom: 2px solid #337ab7;
+        border-radius: 0;
+    }
+
+    #exTab1 li > a:focus, #exTab1 li > a:hover {
+        background: none;
+        border-bottom: 2px solid #337ab7;
+        border-radius: 0;
+        color: #337ab7;
+    }
+
+</style>
+
+<body>
+
+
+<section class="filter-data">
+
+    <div class="container">
+
+        <h2 class="main-title">FTS FLow Visualization </h2>
+
+
+        <div class="row">
+            <div class="col-sm-5 filter-selects" style="padding-left:0;">
+                <div class="col-sm-4">
+                    <h4 class="title-filter">Country</h4>
+
+                    <div class="select_container">
+                        <div class="arrow"></div>
+                        <select id="country" class="select2">
+                        </select>
+                    </div><!-- .select_container -->
+
+
+                </div>
+                <div class="col-sm-4">
+                    <h4 class="title-filter">Year</h4>
+                    <div class="select_container">
+                        <div class="arrow"></div>
+                        <select id="year" class="select2">
+                        </select>
+                    </div><!-- .select_container -->
+                </div>
+                <div class="col-sm-4">
+                    <h4 class="title-filter">Organization</h4>
+                    <div class="select_container">
+                        <div class="arrow"></div>
+                        <select id="organization" class="select2">
+                        </select>
+                    </div><!-- .select_container -->
+                </div>
+            </div>
+
+            <div class="col-sm-7 filter-radios">
+                <div class="col-sm-5">
+                    <h4 class="title-filter">Source Node</h4>
+
+                    <input type="radio" name="source_node" value="source" checked="checked"> Organization
+                    <input type="radio" name="source_node" value="source_globalCluster" style="margin-left: 10px;">
+                    Cluster<br>
+
+                </div>
+                <div class="col-sm-5">
+                    <h4 class="title-filter">Destination Node</h4>
+
+                    <input type="radio" name="destination_node" value="target" checked="checked"> Organization
+                    <input type="radio" name="destination_node" value="target_globalCluster" style="margin-left: 10px;">
+                    Cluster
+
+                </div>
+                <div class="col-sm-2">
+                    <button id="filter-sankey" class="btn btn-filter">Filter</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<div id="exTab1" class="container">
+    <ul class="nav nav-pills">
+        <li class="active">
+            <a href="#sankey-diagram" data-toggle="tab">Sankey</a>
+        </li>
+        <li><a href="#cluster-dendrogram" data-toggle="tab">Dendrogram</a>
+        </li>
+    </ul>
+
+    <div class="tab-content clearfix">
+        <div class="tab-pane active" id="sankey-diagram">
+
+        </div>
+        <div class="tab-pane" id="cluster-dendrogram">
+
+        </div>
+
+    </div>
+</div>
+
+
+<div class="loader hidden"></div>
+
+
+<script src="vendor/jquery-3.1.1.js"></script>
+<script src="vendor/bootstrap-dist/js/bootstrap.min.js"></script>
+<script src="vendor/select2-dist/js/select2.min.js"></script>
+<script src="vendor/d3-dist/d3.js"></script>
+<script src="library/cluster_dendrogram_lib.js"></script>
+<script src="library/sankey_customized_lib.js"></script>
+
+<script src="js/common.js"></script>
+<script src="js/dendro_custom.js"></script>
+<script src="js/sankey_custom.js"></script>
+
+<script src="js/custom-select.js"></script>
+<script type="text/javascript">
+    $('#sankey_diagram a').click(function (e) {
+        e.preventDefault()
+        $(this).tab('show');
+    });
+
+    $('#cluster_dendrogram a').click(function (e) {
+        e.preventDefault()
+        $(this).tab('show');
+    })
+</script>
+</body>
+</html>
