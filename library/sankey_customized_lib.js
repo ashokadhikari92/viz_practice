@@ -272,8 +272,8 @@ d3.sankey = function() {
                 nodes.forEach(function(node, i) {
                     // node.y = i;
                     node.y = i;
-                    node.dm = node.value * ky;
-                    maxDm = Math.max(maxDm,node.dm);
+                    // node.dm = node.value * ky;
+                    // maxDm = Math.max(maxDm,node.dm);
                     node.dy = node.value * ky;
                     // node.dy = Math.sqrt(node.dm) + 5;
                 });

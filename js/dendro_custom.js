@@ -21,7 +21,7 @@ function generateDendrogram(dendrogram) {
             return [d.y, d.x];
         });
 
-    var graph = records.graph;
+    var graph = records.graph_copy;
 
     var formatNumber = d3.format(",.0f"),    // zero decimal places
         format = function (d) {

@@ -330,6 +330,8 @@ function calculateGraphValues(){
     });
 
     var graph_copy =  JSON.parse(JSON.stringify(records.graph));
+
+    records.graph_copy = graph_copy;
     // console.log(records.graph1,graph);debugger;
     sankey
         .nodes(graph.nodes)
@@ -341,7 +343,7 @@ function calculateGraphValues(){
         .links(graph_copy.links)
         .layout(0);
 
-
+    console.log(graph,graph_copy);debugger;
 
     if(graph.links.length == 0){
         alert("No matching flows.");
