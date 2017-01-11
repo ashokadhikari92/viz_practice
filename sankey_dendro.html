@@ -104,18 +104,26 @@
         }
     }
 
+    .nav-pills a{
+        color: #fff;
+    }
     .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
         background: none;
-        color: #337ab7;
-        border-bottom: 2px solid #337ab7;
+        color: #fff;
+        border-bottom: 2px solid #FFEF00;
         border-radius: 0;
     }
 
-    #exTab1 li > a:focus, #exTab1 li > a:hover {
+    .nav-pills li > a:focus, .nav-pills li > a:hover {
         background: none;
-        border-bottom: 2px solid #337ab7;
+        border-bottom: 2px solid #FFEF00;
         border-radius: 0;
-        color: #337ab7;
+        color: #fff;
+    }
+
+    .nav-pills{
+        position: absolute;
+        bottom: 0;
     }
 
 </style>
@@ -143,7 +151,7 @@
 
 
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <h4 class="title-filter">Year</h4>
                     <div class="select_container">
                         <div class="arrow"></div>
@@ -151,7 +159,7 @@
                         </select>
                     </div><!-- .select_container -->
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-5">
                     <h4 class="title-filter">Organization</h4>
                     <div class="select_container">
                         <div class="arrow"></div>
@@ -165,17 +173,50 @@
                 <div class="col-sm-5">
                     <h4 class="title-filter">Source Node</h4>
 
-                    <input type="radio" name="source_node" value="source" checked="checked"> Organization
-                    <input type="radio" name="source_node" value="source_globalCluster" style="margin-left: 10px;">
-                    Cluster<br>
+
+                    <div class="switch-box">
+                        <span>Organization</span>
+                        <div class="toggle-bg">
+                            <input type="radio" name="source_node"  value="source" checked="checked">
+
+
+                            <!--<span class="option1">Organization</span>-->
+
+                            <input type="radio" name="source_node" value="source_globalCluster">
+                            <!--<span class="option2">Cluster</span>-->
+
+                            <span class="switch"></span>
+                        </div>
+                        <span>Cluster</span>
+                    </div>
+
+
+                    <!--<input type="radio" name="source_node" value="source" checked="checked"> Organization-->
+                    <!--<input type="radio" name="source_node" value="source_globalCluster" style="margin-left: 10px;">-->
+                    <!--Cluster<br>-->
 
                 </div>
                 <div class="col-sm-5">
                     <h4 class="title-filter">Destination Node</h4>
 
-                    <input type="radio" name="destination_node" value="target" checked="checked"> Organization
-                    <input type="radio" name="destination_node" value="target_globalCluster" style="margin-left: 10px;">
-                    Cluster
+                    <div class="switch-box">
+                        <span>Organization</span>
+                        <div class="toggle-bg">
+                            <input type="radio" name="destination_node"  value="target" checked="checked">
+
+
+                            <!--<span class="option1">Organization</span>-->
+
+                            <input type="radio" name="destination_node" value="target_globalCluster">
+                            <!--<span class="option2">Cluster</span>-->
+
+                            <span class="switch"></span>
+                        </div>
+                        <span>Cluster</span>
+                    </div>
+                    <!--<input type="radio" name="destination_node" value="target" checked="checked"> Organization-->
+                    <!--<input type="radio" name="destination_node" value="target_globalCluster" style="margin-left: 10px;">-->
+                    <!--Cluster-->
 
                 </div>
                 <div class="col-sm-2">
@@ -184,28 +225,35 @@
             </div>
 
         </div>
+        <ul class="nav nav-pills">
+            <li class="active">
+                <a href="#sankey-diagram" data-toggle="tab">Sankey</a>
+            </li>
+            <li><a href="#cluster-dendrogram" data-toggle="tab">Dendrogram</a>
+            </li>
+        </ul>
     </div>
+
+
 </section>
 
-<div id="exTab1" class="container">
-    <ul class="nav nav-pills">
-        <li class="active">
-            <a href="#sankey-diagram" data-toggle="tab">Sankey</a>
-        </li>
-        <li><a href="#cluster-dendrogram" data-toggle="tab">Dendrogram</a>
-        </li>
-    </ul>
+<div class="main-content">
+    <div id="exTab1" class="container">
 
-    <div class="tab-content clearfix">
-        <div class="tab-pane active" id="sankey-diagram">
 
-        </div>
-        <div class="tab-pane" id="cluster-dendrogram">
+        <div class="tab-content clearfix">
+            <div class="tab-pane active" id="sankey-diagram">
+
+            </div>
+            <div class="tab-pane" id="cluster-dendrogram">
+
+            </div>
 
         </div>
-
     </div>
+
 </div>
+
 
 
 <div class="loader hidden"></div>
@@ -222,7 +270,6 @@
 <script src="js/dendro_custom.js"></script>
 <script src="js/sankey_custom.js"></script>
 
-<script src="js/custom-select.js"></script>
 <script type="text/javascript">
     $('#sankey_diagram a').click(function (e) {
         e.preventDefault()
@@ -233,6 +280,28 @@
         e.preventDefault()
         $(this).tab('show');
     })
+
+
+
+
+    $('.toggle-bg input[type="radio"]').change(function() {
+        $('.toggle-bg input[type="radio"]').removeClass('active');
+        $(this).addClass('active');
+        $(this).siblings('.switch').toggleClass('move-toggle');
+
+        //output value for testing
+        var other = $('input:checked').val();
+        $('.toggle-value').text(other);
+
+    });
+
+
+
+
+    console.log($('.select2-selection__arrow'));
+
+    $('.select2-selection__arrow').append('<span>hi</span>');
+
 </script>
 </body>
 </html>

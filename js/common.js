@@ -14,7 +14,7 @@ var margin = {top: 50, right: 50, bottom: 50, left: 10},
     height = Math.abs(1600 - margin.top - margin.bottom);
 
 $(document).ready(function () {
-    $(".select2").select2();
+    $(".select2").select2({width: '100%'});
 
     loadSelectionFields();
 
