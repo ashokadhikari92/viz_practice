@@ -29,6 +29,8 @@ function generateDendrogram(dendrogram) {
         },
         color = d3.scale.category20();
 
+    //d3.select("#cluster-dendrogram").empty();
+    //d3.select("svg").remove();
 // append the svg canvas to the page
     var svg = d3.select("#cluster-dendrogram").append("svg")
         .attr("width", width + margin.left + margin.right)

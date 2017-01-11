@@ -14,8 +14,8 @@ function generateSankey(sankey) {
             return formatNumber(d) + " " + units;
         },
         color = d3.scale.category20();
-        
 
+    d3.select("svg").remove();
     // append the svg canvas to the page
     var svg = d3.select("#sankey-diagram").append("svg")
         .attr("width", width + margin.left + margin.right)
