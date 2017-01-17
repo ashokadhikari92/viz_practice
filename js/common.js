@@ -23,6 +23,10 @@ $(document).ready(function () {
     });
 
     $("#country").on("change", getOrganizationList);
+    $("b[role='presentation']").remove();
+
+    $(".select2-selection__arrow").append('<span class="glyphicon glyphicon-menu-down"></span>');
+
 
 });
 

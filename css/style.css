@@ -6,7 +6,7 @@ body{
 
 
 .main-content{
-    margin-top: 225px;
+    /*margin-top: 225px;*/
 }
 /*------------------------------------*\
   #Title
@@ -96,17 +96,19 @@ body{
   #Filter data
 \*------------------------------------*/
 .filter-data{
-    box-shadow: 1px 1px 20px #4F4DA7;
-    background-color: #834AFF;
+    /* bg_header: */
+    background-image: linear-gradient(-175deg, #834AFF 0%, #634CDA 61%, #634CDA 61%, #4F4DC2 100%);
+    box-shadow: 0 1px 20px 0 #4F4DA7;
     padding: 20px 0 72px 0;
-    position: fixed;
+    position: relative;
+    /*position: fixed;*/
     top: 0;
     width: 100%;
 }
 
 @media screen and (max-width: 768px){
     .filter-selects,.filter-radios div:nth-child(2){
-        margin-bottom: 40px;
+        margin-bottom: 5px;
     }
 
     .filter-selects div[class^="col"]{
@@ -160,6 +162,7 @@ body{
 
 .select2-container--default .select2-selection--single .select2-selection__rendered{
     color: #fff;
+    font-weight: 300;
 }
 
 
@@ -175,6 +178,7 @@ body{
 .switch-box > span{
     color: #fff;
     font-size: 14px;
+    font-weight:300;
 }
 
 .toggle-bg {
@@ -253,4 +257,27 @@ body{
 
 .toggle-bg input.active {
     z-index: 0;
+}
+
+/*.wrap{*/
+    /*position: fixed;*/
+    /*width:100%;*/
+/*}*/
+
+.glyphicon{
+    color: #fff;
+    font-size: 12px;
+    padding-top: 6px;
+}
+
+.no-data{
+    color: #a9a8a8;
+    margin-top: 40px;
+}
+
+#sticky.stick {
+    margin-top: 0 !important;
+    position: fixed;
+    /*top: 0;*/
+    z-index: 10000;
 }
