@@ -14,7 +14,7 @@ var margin = {top: 50, right: 50, bottom: 50, left: 10},
     height = Math.abs(1600 - margin.top - margin.bottom);
 
 $(document).ready(function () {
-    $(".select2").select2();
+    $(".select2").select2({width: '100%'});
 
     loadSelectionFields();
 
@@ -23,6 +23,10 @@ $(document).ready(function () {
     });
 
     $("#country").on("change", getOrganizationList);
+    $("b[role='presentation']").remove();
+
+    $(".select2-selection__arrow").append('<span class="glyphicon glyphicon-menu-down"></span>');
+
 
 });
 
@@ -285,6 +289,7 @@ function isLinkAlike(link1, link2) {
 
 
 function calculateGraphValues(){
+
     d3.select("svg").remove();
 
     var formatNumber = d3.format(",.0f"),    // zero decimal places
@@ -332,7 +337,7 @@ function calculateGraphValues(){
     var graph_copy =  JSON.parse(JSON.stringify(records.graph));
 
     records.graph_copy = graph_copy;
-    // console.log(records.graph1,graph);debugger;
+
     sankey
         .nodes(graph.nodes)
         .links(graph.links)
@@ -343,7 +348,6 @@ function calculateGraphValues(){
         .links(graph_copy.links)
         .layout(0);
 
-    console.log(graph,graph_copy);debugger;
 
     if(graph.links.length == 0){
         alert("No matching flows.");
