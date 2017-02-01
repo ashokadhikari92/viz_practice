@@ -1,10 +1,12 @@
 var records = {"flows": [], "orgs": [], "years": [], "countries": []};
 var api = {
-    "base": "http://service.fts.yipl.com.np/v1/public/fts/flow?limit=10000",
+    // "base": "https://service.stage.hpc.568elmp03.blackmesh.com/v0/public/fts/flow?limit=10000",
+    "base":"http://service.fts.yipl.com.np/v0/public/fts/flow?limit=1000&planID=",
+    "appeal":"http://service.fts.yipl.com.np/v0/public/plan/year/",
     "organization": "http://service.fts.yipl.com.np/v0/public/yi/organization",
     "organization_base": "http://service.fts.yipl.com.np/v0/public/yi/organization",
-    "country": "http://service.fts.yipl.com.np/v0/public/location",
-    "global_cluster": "http://service.fts.yipl.com.np/v0/public/global-cluster"
+    "country": "https://service.stage.hpc.568elmp03.blackmesh.com/v0/public/location",
+    "global_cluster": "https://service.stage.hpc.568elmp03.blackmesh.com/v0/public/global-cluster"
 };
 
 var units = "USD";
@@ -22,7 +24,7 @@ $(document).ready(function () {
         filterSankey();
     });
 
-    $("#country").on("change", getOrganizationList);
+    $("#year").on("change", getAppealList);
     $("b[role='presentation']").remove();
 
     $(".select2-selection__arrow").append('<span class="glyphicon glyphicon-menu-down"></span>');
@@ -34,42 +36,24 @@ $(document).ready(function () {
  * Load the options value in selection fields
  */
 function loadSelectionFields() {
-    getCountryList();
     getYearList();
-    // getOrganizationList();
 }
 
 
 /*
  * Get organization list
  */
-function getOrganizationList() {
-    var selectedCountry = $("#country").val();
+function getAppealList() {
+    var selectedYear = $("#year").val();
 
     $.ajax({
         type: "GET",
-        url: api.organization_base + "?iso3=" + selectedCountry,
-        dataType: "text",
+        url: api.appeal + selectedYear,
+        dataType: "json",
         success: function (data) {
-            data = JSON.parse(data);
-            records.orgs = data.data;
-            loadOrganizationSelectionField();
-        }
-    });
-}
-
-/*
- * Get list of country
- */
-function getCountryList() {
-    $.ajax({
-        type: "GET",
-        url: api.country,
-        dataType: "text",
-        success: function (data) {
-            data = JSON.parse(data);
-            records.countries = data.data;
-            loadCountrySelectionField();
+            console.log(data);debugger;
+            records.appeals = data.data;
+            loadAppealSelectionField();
         }
     });
 }
@@ -83,31 +67,17 @@ function getYearList() {
 }
 
 /*
- * Load organization selection field with organization list
+ * Load appeal selection field with country list
  */
-function loadOrganizationSelectionField() {
-    var organizationField = $("#organization");
-    organizationField.empty();
-    var orgSelections = "<option value='null'> Select Organization </option>";
+function loadAppealSelectionField() {
+    $("#appeals").empty();
+    var appealSelections = "<option value='null'> Select Appeal </option>";
 
-    records.orgs.forEach(function (org) {
-        orgSelections += "<option value='" + org.id + "'>" + org.name + "</option>";
+    records.appeals.forEach(function (appeal) {
+        appealSelections += "<option value='" + appeal.id + "'>" + appeal.name + "</option>";
     });
 
-    organizationField.append(orgSelections);
-}
-
-/*
- * Load country selection field with country list
- */
-function loadCountrySelectionField() {
-    var countrySelections = "<option value='null'> Select Country </option>";
-
-    records.countries.forEach(function (country) {
-        countrySelections += "<option value='" + country.iso3 + "'>" + country.name + "</option>";
-    });
-
-    $("#country").append(countrySelections);
+    $("#appeals").append(appealSelections);
 }
 
 /*
@@ -129,15 +99,16 @@ function loadYearSelectionField() {
 function filterSankey() {
     var filterData = records.data;
     var url = null;
-    var selectedCountry = $("#country").val();
-    var selectedYear = $("#year").val();
-    var selectedOrg = $("#organization").val();
     var loader = $(".loader");
     loader.removeClass("hidden");
+    $("#cluster-dendrogram").empty();
+    $("#sankey-diagram").empty();
     $("#no-data").empty();
+    var appeal = $("#appeals").val();
 
-    if (selectedCountry) {
-        url = api.base + "&countryISO3=" + selectedCountry + "&year=" + selectedYear + "&organizationID=" + selectedOrg;
+    if (appeal) {
+        // url = api.base + "&countryISO3=" + selectedCountry + "&year=" + selectedYear + "&organizationID=" + selectedOrg;
+        url = api.base + appeal;
         $.ajax({
             type: "GET",
             url: url,
@@ -149,15 +120,19 @@ function filterSankey() {
 
                 data = calculateGraphValues();
 
-               if(data){
-                   generateSankey(data.sankey);
-                   generateDendrogram(data.dendrogram);
-               }
+                if(data){
+                    generateSankey(data.sankey);
+                    generateDendrogram(data.dendrogram);
+                }
+                loader.addClass("hidden");
+            },
+            error:function(err){
+                $("#no-data").html("Error occurred while fetching data.");
                 loader.addClass("hidden");
             }
         });
     } else {
-        alert("Invalid input selection");
+        $("#no-data").html("Invalid input selection.");
         loader.addClass("hidden");
     }
 
@@ -200,31 +175,26 @@ function findSourceAndDestinationNode(flows) {
     var graph = {"nodes": [], "links": []};
     var sourceNode = $('input[name=source_node]:checked').val();
     var destinationNode = $('input[name=destination_node]:checked').val();
-    var selectedOrg = $("#organization").val();
+    // var selectedOrg = $("#organization").val();
     // var selectedOrg = 16068;
 
     var i = 0;
     var j = 0;
     if (sourceNode && destinationNode) {
         flows.forEach(function (flow) {
-            if (selectedOrg == flow.sourceOrganization.id) {
-                i++;
-                if (!(flow.source == flow[destinationNode])) {
-                    j++;
-                    graph.nodes.push({"name": flow.source});
-                    graph.nodes.push({"name": flow[destinationNode]});
-                    graph.links.push({
-                        "source": flow.source,
-                        "target": flow[destinationNode],
-                        "flow": flow["boundary"],
-                        "value": +flow["amountUSD"]
-                    });
-                }
+            if (!(flow.source == flow[destinationNode])) {
+                j++;
+                graph.nodes.push({"name": flow.source});
+                graph.nodes.push({"name": flow[destinationNode]});
+                graph.links.push({
+                    "source": flow.source,
+                    "target": flow[destinationNode],
+                    "flow": flow["boundary"],
+                    "value": +flow["amountUSD"]
+                });
             }
 
-            if (selectedOrg == flow.targetOrganization.id) {
-                i++;
-                if (!(flow.target == flow[sourceNode])) {
+            if (!(flow.target == flow[sourceNode])) {
                     j++;
                     graph.nodes.push({"name": flow[sourceNode]});
                     graph.nodes.push({"name": flow.target});
@@ -235,11 +205,8 @@ function findSourceAndDestinationNode(flows) {
                         "value": +flow["amountUSD"]
                     });
                 }
-            }
         });
 
-        console.log("value of i : " + i);
-        console.log("value of j : " + j);
     }
 
     records.graph = graph;
@@ -358,4 +325,3 @@ function calculateGraphValues(){
 
     return {'sankey':sankey,'dendrogram':dendrogram};
 }
-

@@ -249,7 +249,7 @@
 
         <div class="tab-content clearfix">
             <div class="tab-pane active" id="sankey-diagram">
-                <h4 class="no-data">Please select data from above</h4>
+                <h4 class="no-data" id="no-data">Please select data from above</h4>
             </div>
             <div class="tab-pane" id="cluster-dendrogram">
                 <!--<h4 class="no-data">Please select data from above</h4>-->
@@ -339,9 +339,7 @@
 
     function sticky_relocate() {
 
-        console.log('sticky relocation');
         var window_top = $(window).scrollTop();
-        console.log(window_top);
         var div_top = $('#sticky-anchor').offset().top;
         if (window_top > 80) {
             $('#sticky').addClass('stick');

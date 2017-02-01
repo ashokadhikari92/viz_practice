@@ -107,15 +107,41 @@ function generateSankey(sankey) {
         sankey.relayout();
         link.attr("d", path);
     }
+
+
+
+    var bCord= calculateBoundaryCoordinates(graph.nodes);
+
+
+    // if (bCord.maxInternal > 0) {
+    //     var boundary = svg.selectAll("rect")
+    //         .data([2])
+    //         .enter()
+    //         .append("rect")
+    //         .attr("class", "boundary")
+    //         .attr("x", bCord.x)
+    //         .attr("y", bCord.y)
+    //         .attr("height", bCord.height)
+    //         .attr("width", Math.abs(bCord.width));
+    //
+    //     boundary.append("title")
+    //         .text("Internal Boundary");
+    // }
+
 }
 
+function calculateBoundaryCoordinates(nodes){
+    var maxInternal = 0; var maxIncoming = 0;
 
+    nodes.forEach(function(node){
+        if("internal" == node.flow){
+            maxInternal = Math.max(node.x,maxInternal);
+        }
+        if("incoming" == node.flow){
+            maxIncoming = Math.max(node.x,maxIncoming);
+        }
+    });
+    console.log(maxInternal,maxIncoming);
 
-
-
-
-
-
-
-
-
+    return {'maxInternal':maxInternal,'x':maxIncoming + 50,'width':(maxInternal - maxIncoming) ,'y':-50,'height':height + 100};
+}
